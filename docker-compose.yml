@@ -8,6 +8,7 @@ services:
       # Adjust the host path if `which vcgencmd` returns a different location.
       - "/usr/bin/vcgencmd:/usr/bin/vcgencmd:ro"
     devices:
-      - "/dev/vchiq:/dev/vchiq"
+      # On Raspberry Pi 5 the firmware device is /dev/vcio; on older Pis use /dev/vchiq.
+      - "/dev/vcio:/dev/vcio"
     # Uncomment if additional permissions are required:
     # privileged: true

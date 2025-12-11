@@ -15,6 +15,7 @@ Then open `http://<raspberry-pi-ip>:9000/` in your browser.
 
 ### Notes on device/binary mounts
 - `docker-compose.yml` bind-mounts `/usr/bin/vcgencmd` into the container (read-only) and exposes `/dev/vchiq`.
+- On Raspberry Pi 5 use `/dev/vcio`; on older Pis use `/dev/vchiq`. Update the `devices:` entry in `docker-compose.yml` to match what exists on your device.
 - If `which vcgencmd` reports a different path on your Pi, adjust the volume in `docker-compose.yml`.
 - If you hit permission issues, you can try uncommenting `privileged: true` in `docker-compose.yml` (not recommended unless necessary).
 
