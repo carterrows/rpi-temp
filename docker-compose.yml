@@ -1,0 +1,19 @@
+version: "3.9"
+
+# Usage:
+#   docker compose build
+#   docker compose up -d
+# Then visit http://<raspberry-pi-ip>:8000/
+services:
+  pi-temp-monitor:
+    build: .
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      # Adjust the host path if `which vcgencmd` returns a different location.
+      - "/usr/bin/vcgencmd:/usr/bin/vcgencmd:ro"
+    devices:
+      - "/dev/vchiq:/dev/vchiq"
+    # Uncomment if additional permissions are required:
+    # privileged: true

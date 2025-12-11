@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raspberry Pi CPU Temperature</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
+  <div class="w-full max-w-2xl">
+    <div class="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-900/40 border border-slate-800/60 rounded-3xl shadow-2xl p-8 backdrop-blur">
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Raspberry Pi</p>
+          <h1 class="text-3xl font-semibold text-slate-50 mt-2">CPU Temperature Monitor</h1>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <span id="status" class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium border border-amber-400/30 bg-amber-500/20 text-amber-100">Connecting...</span>
+        </div>
+      </div>
+
+      <div class="flex items-baseline gap-3 mb-8">
+        <div id="temp-value" class="text-5xl font-bold text-slate-50">--.-&deg;C</div>
+        <div class="text-sm text-slate-400">current</div>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-sm text-slate-400">Raw output</p>
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+          <code id="raw-value" class="block text-sm text-slate-200 font-mono">Waiting for data...</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tempValue = document.getElementById("temp-value");
+    const rawValue = document.getElementById("raw-value");
+    const statusBadge = document.getElementById("status");
+    let intervalId = null;
+
+    const statusStyles = {
+      connecting: "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium border border-amber-400/30 bg-amber-500/20 text-amber-100",
+      live: "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium border border-emerald-400/30 bg-emerald-500/20 text-emerald-100",
+      error: "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium border border-rose-400/30 bg-rose-500/20 text-rose-100"
+    };
+
+    function setStatus(state, label) {
+      statusBadge.className = statusStyles[state] || statusStyles.connecting;
+      statusBadge.textContent = label;
+    }
+
+    async function fetchTemp() {
+      try {
+        const response = await fetch("/api/temp", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+        const data = await response.json();
+        const displayValue = typeof data.temp_c === "number" ? `${data.temp_c.toFixed(1)}\u00B0C` : "Unavailable";
+        tempValue.textContent = displayValue;
+        rawValue.textContent = data.raw || "No raw output";
+        setStatus("live", "Live");
+      } catch (error) {
+        tempValue.textContent = "Error";
+        rawValue.textContent = error.message;
+        setStatus("error", "Error");
+      }
+    }
+
+    function startPolling() {
+      if (intervalId !== null) return;
+      setStatus("connecting", "Connecting...");
+      fetchTemp();
+      intervalId = setInterval(fetchTemp, 1000);
+    }
+
+    function stopPolling() {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    }
+
+    window.addEventListener("load", startPolling);
+    window.addEventListener("focus", startPolling);
+    window.addEventListener("blur", stopPolling);
+    window.addEventListener("beforeunload", stopPolling);
+  </script>
+</body>
+</html>
