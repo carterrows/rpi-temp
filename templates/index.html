@@ -28,18 +28,11 @@
         <div class="text-sm text-slate-400">current</div>
       </div>
 
-      <div class="space-y-2">
-        <p class="text-sm text-slate-400">Raw output</p>
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-          <code id="raw-value" class="block text-sm text-slate-200 font-mono">Waiting for data...</code>
-        </div>
-      </div>
     </div>
   </div>
 
   <script>
     const tempValue = document.getElementById("temp-value");
-    const rawValue = document.getElementById("raw-value");
     const statusBadge = document.getElementById("status");
     let intervalId = null;
 
@@ -63,11 +56,9 @@
         const data = await response.json();
         const displayValue = typeof data.temp_c === "number" ? `${data.temp_c.toFixed(1)}\u00B0C` : "Unavailable";
         tempValue.textContent = displayValue;
-        rawValue.textContent = data.raw || "No raw output";
         setStatus("live", "Live");
       } catch (error) {
         tempValue.textContent = "Error";
-        rawValue.textContent = error.message;
         setStatus("error", "Error");
       }
     }
