@@ -127,7 +127,7 @@
         }
         fanValue.textContent = fanDisplay;
 
-        fanDetail.textContent = data.fan_error || (data.fan_path ? `Path: ${data.fan_path}` : "");
+        fanDetail.textContent = data.fan_error || "";
         rawTemp.textContent = data.temp_raw || data.temp_error || "No temp data";
         rawFan.textContent = data.fan_error || data.fan_path || "No fan data";
 
