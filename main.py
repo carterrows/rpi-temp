@@ -17,7 +17,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 FAN_MAX_RPM = 8000
-FAN_GLOB = "/sys/devices/platform/cooling_fan/hwmon*/fan1_input"
+FAN_GLOB = "/sys/devices/platform/cooling_fan/hwmon/hwmon*/fan1_input"
 
 
 def read_cpu_temp() -> Tuple[Optional[float], Optional[str], Optional[str]]:
