@@ -7,6 +7,8 @@ services:
     volumes:
       # Adjust the host path if `which vcgencmd` returns a different location.
       - "/usr/bin/vcgencmd:/usr/bin/vcgencmd:ro"
+      # Fan RPM via sysfs; mount /sys read-only so hwmon path resolution works.
+      - "/sys:/sys:ro"
     devices:
       # On Raspberry Pi 5 the firmware device is /dev/vcio; on older Pis use /dev/vchiq.
       - "/dev/vcio:/dev/vcio"
