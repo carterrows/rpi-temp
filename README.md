@@ -1,6 +1,6 @@
-# Raspberry Pi CPU Temperature Monitor
+# Raspberry Pi CPU Temp & Fan Monitor
 
-Minimal FastAPI + Tailwind web UI that shows live CPU temperature on a Raspberry Pi. The backend only runs `vcgencmd measure_temp` when the page polls it, so no temperature commands run when nobody is viewing the site.
+Minimal FastAPI + Tailwind web UI that shows live CPU temperature and Raspberry Pi 5 Active Cooler fan speed (RPM + % of 8000 max). The backend only reads when the browser polls `/api/stats`, so no commands or sysfs reads occur when nobody is connected.
 
 ## Requirements
 - Raspberry Pi OS with `vcgencmd` available (usually `/usr/bin/vcgencmd`)
@@ -13,15 +13,18 @@ docker compose up -d
 ```
 Then open `http://<raspberry-pi-ip>:9000/` in your browser.
 
-### Notes on device/binary mounts
-- `docker-compose.yml` bind-mounts `/usr/bin/vcgencmd` into the container (read-only) and exposes `/dev/vchiq`.
-- On Raspberry Pi 5 use `/dev/vcio`; on older Pis use `/dev/vchiq`. Update the `devices:` entry in `docker-compose.yml` to match what exists on your device.
-- If `which vcgencmd` reports a different path on your Pi, adjust the volume in `docker-compose.yml`.
-- If you hit permission issues, you can try uncommenting `privileged: true` in `docker-compose.yml` (not recommended unless necessary).
+### Notes on mounts/devices
+- `docker-compose.yml` bind-mounts:
+  - `/usr/bin/vcgencmd:/usr/bin/vcgencmd:ro` for temperature.
+  - `/sys:/sys:ro` so the app can find `/sys/devices/platform/cooling_fan/hwmon*/fan1_input` for fan RPM.
+- Devices:
+  - Raspberry Pi 5: `/dev/vcio`; older Pis: `/dev/vchiq`. Set the `devices:` entry to whichever exists.
+- Adjust the vcgencmd path if `which vcgencmd` differs on your Pi.
+- If permission issues arise, you can try uncommenting `privileged: true` (not recommended unless necessary).
 
 ## Project structure
-- `main.py` — FastAPI app with `/` (HTML) and `/api/temp` (JSON).
-- `templates/index.html` — Tailwind CDN UI with 1s polling, starts/stops on focus/blur.
+- `main.py` — FastAPI app with `/` (HTML) and `/api/stats` (JSON: temp + fan rpm/%).
+- `templates/index.html` — Tailwind CDN UI with 1s polling, starts/stops on focus/blur; shows temp, fan rpm, fan percent, diagnostics.
 - `requirements.txt` — Python deps (fastapi, uvicorn, jinja2).
 - `Dockerfile`, `docker-compose.yml` — Container build/run setup for Pi.
 
