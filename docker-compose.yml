@@ -1,5 +1,5 @@
 services:
-  pi-temp-monitor:
+  pi-stats-monitor:
     build: .
     ports:
       - "9000:9000"
