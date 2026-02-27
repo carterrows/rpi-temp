@@ -1,5 +1,7 @@
 # Raspberry Pi CPU Temp & Fan Monitor
 
+![Demo screenshot](./demo.png)
+
 Minimal FastAPI + Tailwind web UI that shows live CPU temperature and Raspberry Pi 5 Active Cooler fan speed (RPM + % of 8000 max). The backend only reads when the browser polls `/api/stats`, so no commands or sysfs reads occur when nobody is connected.
 
 ## Requirements
